@@ -21,6 +21,10 @@ class TorrentServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
+		$this->app->bind('bstien.torrent.scraper', function ($app)
+		{
+
+		});
 	}
 
 	/**
