@@ -1,0 +1,19 @@
+{
+  "name": "bstien/laravel-torrent",
+  "description": "Search for torrents with this package",
+  "authors": [
+    {
+      "name": "Bastian Stien",
+      "email": "bastian.stien@gmail.com"
+    }
+  ],
+  "require": {},
+  "require-dev": {
+    "illuminate/support": "~5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Stien\\Torrent\\": "src"
+    }
+  }
+}
