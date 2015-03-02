@@ -4,7 +4,7 @@ namespace Stien\Torrent;
 class TorrentScraper {
 	protected $adapters = [];
 
-	public function setAdapter(TorrentAdapterInterface $adapter)
+	public function addAdapter(TorrentAdapterInterface $adapter)
 	{
 		$this->adapters[] = $adapter;
 	}
