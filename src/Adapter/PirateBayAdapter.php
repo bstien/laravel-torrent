@@ -1,7 +1,9 @@
 <?php
 namespace Stien\Torrent\Adapter;
 
+use GuzzleHttp\Client;
 use Stien\Torrent\HttpClientTrait;
+use Stien\Torrent\Result\Torrent;
 use Stien\Torrent\TorrentAdapterInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -28,32 +30,47 @@ class PirateBayAdapter implements TorrentAdapterInterface {
 	 */
 	public function search($query)
 	{
+		# Set single-cell view for results.
+		$requestOptions = [
+			'cookies' => [
+				'lw' => 's'
+			]
+		];
 		$url = $this->makeUrl($query);
-		$response = $this->httpClient->get($url);
+		$response = $this->httpClient->get($url, $requestOptions);
 
 		$crawler = new Crawler((string)$response->getBody());
 		$items = $crawler->filter('#searchResult tr');
 
-		$results = [];
-		$first = true;
+		$torrents = [];
+		$firstRow = true;
 		foreach ($items as $item)
 		{
-			// Ignore the first row, the header
-			if ( $first )
+			// Ignore the first row.
+			if ( $firstRow )
 			{
-				$first = false;
+				$firstRow = false;
 				continue;
 			}
+
+
 			$result = new Torrent();
 			$itemCrawler = new Crawler($item);
-			$result->setName(trim($itemCrawler->filter('.detName')->text()));
-			$result->setSeeders((int)$itemCrawler->filter('td')->eq(2)->text());
-			$result->setLeechers((int)$itemCrawler->filter('td')->eq(3)->text());
-			$result->setMagnetUrl($itemCrawler->filterXpath('//tr/td/a')->attr('href'));
-			$results[] = $result;
+
+			// Set details for torrent.
+			$result->setSite("PirateBay");
+			$result->setTitle(trim($itemCrawler->filter('td')->eq(1)->text()));
+			$result->setSeeders((int)$itemCrawler->filter('td')->eq(5)->text());
+			$result->setLeechers((int)$itemCrawler->filter('td')->eq(6)->text());
+			$result->setMagnet($itemCrawler->filterXpath('/td[3]/a[0]')->attr('href'));
+			$result->setSize($itemCrawler->filter('td')->eq(4)->text());
+			$result->setAge($itemCrawler->filterXPath('/td[2]')->text());
+			$result->setCategory($itemCrawler->filterXPath('/td[0]')->text());
+
+			$torrents[] = $result;
 		}
 
-		return $results;
+		return $torrents;
 	}
 
 	private function makeUrl($query, $category = null, $sort_by = null)
