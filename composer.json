@@ -9,8 +9,8 @@
   ],
   "require": {
     "guzzlehttp/guzzle": "5.2.0",
-    "symfony/dom-crawler": "~2.7",
-    "symfony/css-selector": "~2.7"
+    "symfony/dom-crawler": "~2.6",
+    "symfony/css-selector": "~2.6"
   },
   "require-dev": {
     "illuminate/support": "~5.0"
