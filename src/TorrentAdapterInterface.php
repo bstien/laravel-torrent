@@ -12,11 +12,13 @@ interface TorrentAdapterInterface {
 
 	/**
 	 * Search for torrents.
+	 * Se constants in Stien\Torrent\Categories for $category.
 	 *
 	 * @param string $query
+	 * @param int    $category
 	 * @return array Array of torrents. Either empty or filled.
 	 */
-	public function search($query);
+	public function search($query, $category);
 
 	/**
 	 * Set the HTTP-client for this adapter.

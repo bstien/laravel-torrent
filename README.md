@@ -1,6 +1,6 @@
 # Laravel Torrent
 
-A package for Laravel to scrape for torrents.
+A package for [Laravel 5](http://laravel.com/) to scrape for torrents.
 
 ## Installation
 Add this to your `composer.json`:
@@ -24,6 +24,9 @@ Register the facade and ServiceProvider in `config/app.php`:
 ```
 
 ## Usage
+
+### Regular search
+Returns an array with `Stien\Torrent\Result\Torrent`-objects if matches are found. If not, an empty array is returned.
 ```php
 use Stien\Torrent\Facades\Torrent;
 # You can register this to your facades-array in config/app.php if you like
@@ -34,6 +37,21 @@ foreach( $torrents as $torrent )
 {
     echo $torrent->getTitle();
 }
+
+
+# To search within a specific category, use any of the constants in
+# Stien\Torrent\Categories.
+```
+
+### Search in category
+Include a category as the second argument to `Torrent::search()`. See constants in `Stien\Torrent\Categories` for reference.
+
+It defaults to `Categories::ALL` if none are given.
+```php
+use Stien\Torrent\Facades\Torrent;
+use Stien\Torrent\Categories as CAT;
+
+$torrents = Torrent::search("Die Hard", CAT::MOVIES_HD);
 ```
 
 ## Implement your own adapter
