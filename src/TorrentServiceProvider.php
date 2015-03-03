@@ -3,6 +3,7 @@ namespace Stien\Torrent;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
+use Stien\Torrent\Adapter\KickassAdapter;
 use Stien\Torrent\Adapter\PirateBayAdapter;
 
 class TorrentServiceProvider extends ServiceProvider {
@@ -29,8 +30,13 @@ class TorrentServiceProvider extends ServiceProvider {
 
 			// Add PirateBayAdapter
 			$pirateBayAdapter = new PirateBayAdapter();
-			$pirateBayAdapter->setHttpClient(new \GuzzleHttp\Client());
+			$pirateBayAdapter->setHttpClient(new Client());
 			$torrentScraper->addAdapter($pirateBayAdapter);
+
+			// Add KickassAdapter
+			$kickassAdapter = new KickassAdapter();
+			$kickassAdapter->setHttpClient(new Client());
+			$torrentScraper->addAdapter($kickassAdapter);
 
 			return $torrentScraper;
 		});
