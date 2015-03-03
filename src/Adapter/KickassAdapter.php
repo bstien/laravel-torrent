@@ -13,6 +13,8 @@ class KickassAdapter implements TorrentAdapterInterface {
 	private $baseUrl = "https://kickass.to/";
 	private $searchUrl = "usearch/%QUERY%?field=seeders&sorder=desc&rss=1";
 
+	private $tag = 'kickass';
+
 	/**
 	 * @param array $options
 	 */
@@ -56,7 +58,7 @@ class KickassAdapter implements TorrentAdapterInterface {
 			$itemCrawler = new Crawler($item);
 
 			// Set details for torrent.
-			$torrent->setSite("Kickass");
+			$torrent->setSite($this->tag);
 			$torrent->setTitle($itemCrawler->filterXpath('//title')->text());
 			$torrent->setSeeders((int)$itemCrawler->filterXpath('//torrent:seeds')->text());
 			$torrent->setLeechers((int)$itemCrawler->filterXpath('//torrent:peers')->text());

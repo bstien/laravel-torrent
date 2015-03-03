@@ -13,6 +13,8 @@ class PirateBayAdapter implements TorrentAdapterInterface {
 	private $baseUrl = "https://thepiratebay.se/";
 	private $searchUrl = "search/%QUERY%/0/7/0";
 
+	private $tag = 'piratebay';
+
 	/**
 	 * @param array $options
 	 */
@@ -69,7 +71,7 @@ class PirateBayAdapter implements TorrentAdapterInterface {
 			$itemCrawler = new Crawler($item);
 
 			// Set details for torrent.
-			$torrent->setSite("PirateBay");
+			$torrent->setSite($this->tag);
 			$torrent->setTitle(trim($itemCrawler->filter('td')->eq(1)->text()));
 			$torrent->setSeeders((int)$itemCrawler->filter('td')->eq(5)->text());
 			$torrent->setLeechers((int)$itemCrawler->filter('td')->eq(6)->text());
