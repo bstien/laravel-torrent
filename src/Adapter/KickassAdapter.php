@@ -1,6 +1,8 @@
 <?php
 namespace Stien\Torrent\Adapter;
 
+use Stien\Torrent\BuildUrlTrait;
+use Stien\Torrent\Categories as TC;
 use Stien\Torrent\HttpClientTrait;
 use Stien\Torrent\Result\Torrent;
 use Stien\Torrent\TorrentAdapterInterface;
@@ -9,9 +11,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class KickassAdapter implements TorrentAdapterInterface {
 
 	use HttpClientTrait;
-
-	private $baseUrl = "https://kickass.to/";
-	private $searchUrl = "usearch/%QUERY%?field=seeders&sorder=desc&rss=1";
+	use BuildUrlTrait;
 
 	private $tag = 'kickass';
 
@@ -20,16 +20,31 @@ class KickassAdapter implements TorrentAdapterInterface {
 	 */
 	public function __construct(array $options = null)
 	{
-
+		$this->setBaseUrl("https://kickass.to/");
+		$this->setSearchUrl("usearch/%QUERY%+category:%CATEGORY%?field=seeders&sorder=desc&rss=1");
+		$this->setCategoryIdentifiers([
+			TC::ALL       => "all",
+			TC::MOVIES    => "movies",
+			TC::MOVIES_HD => "movies",
+			TC::TV        => "tv",
+			TC::TV_HD     => "tv",
+			TC::ANIME     => "anime",
+			TC::MUSIC     => "music",
+			TC::BOOKS     => "books",
+			TC::APPS      => "apps",
+			TC::GAMES     => "games",
+			TC::XXX       => "xxx",
+		]);
 	}
 
 	/**
 	 * Search for torrents.
 	 *
 	 * @param string $query
+	 * @param int    $category
 	 * @return array Array of torrents. Either empty or filled.
 	 */
-	public function search($query)
+	public function search($query, $category)
 	{
 		# Set single-cell view for torrents.
 		$requestOptions = [
@@ -38,10 +53,9 @@ class KickassAdapter implements TorrentAdapterInterface {
 			]
 		];
 
-
 		try
 		{
-			$url = $this->makeUrl($query);
+			$url = $this->makeUrl($query, $category);
 			$response = $this->httpClient->get($url, $requestOptions);
 			$crawler = new Crawler((string)$response->getBody());
 		} catch (\Exception $e)
@@ -71,20 +85,6 @@ class KickassAdapter implements TorrentAdapterInterface {
 		}
 
 		return $torrents;
-	}
-
-	private function makeUrl($query, $category = null, $sort_by = null)
-	{
-		// TODO: Make URL based on category and sort.
-
-		// Make URL.
-		$url = $this->baseUrl . $this->searchUrl;
-
-		// Replace placeholder with actual query.
-		$query = urlencode($query);
-		$url = preg_replace("/%QUERY%/", $query, $url);
-
-		return $url;
 	}
 
 	protected function formatBytes($bytes, $precision = 2)

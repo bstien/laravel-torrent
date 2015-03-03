@@ -1,6 +1,8 @@
 <?php
 namespace Stien\Torrent\Adapter;
 
+use Stien\Torrent\BuildUrlTrait;
+use Stien\Torrent\Categories as TC;
 use Stien\Torrent\HttpClientTrait;
 use Stien\Torrent\Result\Torrent;
 use Stien\Torrent\TorrentAdapterInterface;
@@ -9,9 +11,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class PirateBayAdapter implements TorrentAdapterInterface {
 
 	use HttpClientTrait;
-
-	private $baseUrl = "https://thepiratebay.se/";
-	private $searchUrl = "search/%QUERY%/0/7/0";
+	use BuildUrlTrait;
 
 	private $tag = 'piratebay';
 
@@ -20,16 +20,34 @@ class PirateBayAdapter implements TorrentAdapterInterface {
 	 */
 	public function __construct(array $options = null)
 	{
-
+		$this->setBaseUrl("https://thepiratebay.se/");
+		$this->setSearchUrl("search/%QUERY%/0/7/%CATEGORY%");
+		$this->setCategoryIdentifiers([
+			TC::ALL       => "0",
+			TC::MOVIES    => "201,207",
+			TC::MOVIES_HD => "207",
+			TC::TV        => "205,208",
+			TC::TV_HD     => "208",
+			TC::ANIME     => "602",
+			TC::MUSIC     => "101,102,103,104",
+			TC::BOOKS     => "601",
+			// TODO: Should be able to sort by platform. Both apps and games.
+			TC::APPS      => "301,302",
+			TC::GAMES     => "401,402",
+			// If anyone really needs this category, they can fix the sorting of porn
+			// and send me a pull-request :)
+			TC::XXX       => "501,502,503,504,505,506,599",
+		]);
 	}
 
 	/**
 	 * Search for torrents.
 	 *
 	 * @param string $query
+	 * @param int    $category
 	 * @return array Array of torrents. Either empty or filled.
 	 */
-	public function search($query)
+	public function search($query, $category)
 	{
 		# Set single-cell view for torrents.
 		$requestOptions = [
@@ -41,10 +59,9 @@ class PirateBayAdapter implements TorrentAdapterInterface {
 			]
 		];
 
-
 		try
 		{
-			$url = $this->makeUrl($query);
+			$url = $this->makeUrl($query, $category);
 			$response = $this->httpClient->get($url, $requestOptions);
 			$crawler = new Crawler((string)$response->getBody());
 		} catch (\Exception $e)
@@ -66,7 +83,6 @@ class PirateBayAdapter implements TorrentAdapterInterface {
 				continue;
 			}
 
-
 			$torrent = new Torrent();
 			$itemCrawler = new Crawler($item);
 
@@ -84,18 +100,5 @@ class PirateBayAdapter implements TorrentAdapterInterface {
 		}
 
 		return $torrents;
-	}
-
-	private function makeUrl($query, $category = null, $sort_by = null)
-	{
-		// TODO: Make URL based on category and sort by fields.
-		// Make URL.
-		$url = $this->baseUrl . $this->searchUrl;
-
-		// Replace placeholder with actual query.
-		$query = urlencode($query);
-		$url = preg_replace("/%QUERY%/", $query, $url);
-
-		return $url;
 	}
 }
