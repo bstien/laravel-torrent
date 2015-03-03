@@ -1,6 +1,7 @@
 {
   "name": "bstien/laravel-torrent",
   "description": "Search for torrents with this package",
+  "license": "MIT",
   "authors": [
     {
       "name": "Bastian Stien",
